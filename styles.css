@@ -1,0 +1,1003 @@
+/* Vantrio waitlist
+   Theme: dark, locked. Accent: lime, locked.
+   Radius system: cards 18px, buttons + inputs pill, phone 34px,
+   photo thumbs + chips 12px, micro-graphics 6px.
+   Z-scale: content 0-3 (phone internals), grain 10. */
+
+@font-face {
+  font-family: "Bricolage Grotesque";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/fonts/bricolage-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Bricolage Grotesque";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/fonts/bricolage-500.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Bricolage Grotesque";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("assets/fonts/bricolage-600.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Bricolage Grotesque";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("assets/fonts/bricolage-700.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Bricolage Grotesque";
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("assets/fonts/bricolage-800.woff2") format("woff2");
+}
+
+:root {
+  --bg: #0c0d0f;
+  --bg-raise: #14161a;
+  --bg-raise-2: #1b1e23;
+  --line: rgba(242, 243, 238, 0.09);
+  --text: #f2f3ee;
+  --text-dim: #a6aaa2;
+  --accent: #c8f542;
+  --accent-dim: rgba(200, 245, 66, 0.12);
+  --accent-ink: #131503;
+  --radius-card: 18px;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  /* Strong ease-in-out for continuous on-screen movement (the phone's idle
+     3D orbit). --ease-out is for entrances/exits; this is for things already
+     on screen drifting from one position to another. */
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-padding-top: 96px; }
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Bricolage Grotesque", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip; /* full-bleed bands use viewport-width margins */
+}
+
+/* Film grain over everything; fixed and inert so it never repaints on scroll. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+::selection { background: var(--accent); color: var(--accent-ink); }
+
+.full-bleed { margin-inline: calc(50% - 50vw); }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+img { display: block; max-width: 100%; }
+
+h1, h2, h3 { line-height: 1.08; letter-spacing: -0.02em; text-wrap: balance; }
+h1 { font-size: clamp(2.6rem, 6vw, 4.2rem); font-weight: 800; }
+h2 { font-size: clamp(1.9rem, 4vw, 2.7rem); font-weight: 700; max-width: 18ch; }
+h3 { font-size: 1.15rem; font-weight: 600; letter-spacing: -0.01em; }
+
+p { text-wrap: pretty; }
+
+.accent { color: var(--accent); }
+
+main, .nav, .footer {
+  max-width: 1160px;
+  margin-inline: auto;
+  padding-inline: clamp(20px, 4vw, 48px);
+}
+
+/* ---------- Buttons ---------- */
+
+.btn {
+  display: inline-block;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font: inherit;
+  font-weight: 600;
+  font-size: 1rem;
+  border: 0;
+  border-radius: 999px;
+  padding: 14px 28px;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform 0.2s var(--ease-out), filter 0.2s var(--ease-out);
+}
+.btn:hover { transform: translateY(-1px); filter: brightness(1.06); }
+.btn:active { transform: scale(0.98); }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.btn-small { padding: 12px 22px; font-size: 0.92rem; }
+
+/* ---------- Nav ---------- */
+
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 72px;
+}
+
+.wordmark {
+  font-weight: 700;
+  font-size: 1.35rem;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  text-decoration: none;
+}
+.wordmark::after {
+  content: ".";
+  color: var(--accent);
+}
+
+/* ---------- Hero ---------- */
+
+.hero {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  align-items: center;
+  gap: clamp(32px, 5vw, 72px);
+  padding-top: clamp(28px, 5vh, 64px);
+  padding-bottom: clamp(56px, 9vh, 110px);
+}
+
+/* A single-source lime glow washes the entire header (nav + hero, edge to
+   edge). One large hotspot above the headline carries multiple stops (bright
+   core, mid glow, faint tail) instead of one flat falloff, so it reads as a
+   real light source even though it's big enough to reach every corner; a
+   second, much fainter, very large pool keeps the opposite corner from ever
+   going flat dead black. The only glow on the page. */
+.hero::before {
+  content: "";
+  position: absolute;
+  left: calc(50% - 50vw);
+  right: calc(50% - 50vw);
+  top: -72px; /* reach up behind .nav (72px tall) so the wash is continuous from the top of the page */
+  bottom: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(90vw 920px at 74% 8%,
+      rgba(200, 245, 66, 0.26) 0%,
+      rgba(200, 245, 66, 0.1) 36%,
+      rgba(200, 245, 66, 0.03) 62%,
+      transparent 85%),
+    radial-gradient(120vw 620px at 22% 78%, rgba(200, 245, 66, 0.05), transparent 72%);
+}
+
+.hero-copy .sub {
+  color: var(--text-dim);
+  font-size: 1.13rem;
+  max-width: 44ch;
+  margin-top: 20px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-copy > * {
+    animation: rise 0.7s var(--ease-out) both;
+  }
+  .hero-copy .sub { animation-delay: 0.08s; }
+  .hero-copy .waitlist-form { animation-delay: 0.16s; }
+  .hero-demo { animation: rise 0.8s var(--ease-out) 0.2s both; }
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Waitlist form ---------- */
+
+.waitlist-form { margin-top: 36px; }
+
+.waitlist-form label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.field-row {
+  display: flex;
+  gap: 10px;
+  max-width: 480px;
+}
+
+.waitlist-form input[type="email"] {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--text);
+  background: var(--bg-raise);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 13px 22px;
+}
+.waitlist-form input[type="email"]::placeholder { color: #8b8f86; }
+.waitlist-form input[type="email"]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+
+.form-helper {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-top: 10px;
+}
+
+.form-error {
+  font-size: 0.9rem;
+  color: #ff9d8a;
+  margin-top: 10px;
+}
+
+.honey {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.form-success h3 { font-size: 1.5rem; }
+.form-success h3:focus { outline: none; } /* programmatic focus for announcement only */
+.form-success p { color: var(--text-dim); margin-top: 8px; }
+
+/* ---------- Phone demo ---------- */
+
+/* Shared 3D camera: .hero-demo is the stage. One `perspective` here means the
+   phone and the photo fan sit in the same 3D space instead of each faking
+   depth on its own. `.phone` and `.shots` both get `preserve-3d` so their
+   children (phone faces, individual prints) hold real Z position under the
+   parent's rotation instead of being flattened back to 2D. */
+.hero-demo {
+  position: relative;
+  justify-self: center;
+  text-align: center;
+  perspective: 1400px;
+  perspective-origin: 50% 40%;
+}
+
+/* .phone is the 3D object itself: no visible box styling lives here anymore
+   (that moved to .phone-front, the screen-facing box) so the border/shadow
+   don't double up with the other five faces stacked in the same space. */
+.phone {
+  position: relative;
+  width: min(300px, 72vw);
+  aspect-ratio: 9 / 17.5;
+  transform-style: preserve-3d;
+  /* Static resting tilt; JS spring / idle keyframe both animate from here.
+     rotateY is pushed to -15deg (not a timid -10deg) so the edge faces read
+     as visible thickness at rest, not just at the orbit's rotation extremes. */
+  transform: rotateX(6deg) rotateY(-15deg);
+}
+
+/* ---------- Phone: real 3D depth ---------- */
+/* Six stacked faces give the phone actual thickness: a front (the screen),
+   a back, and four thin edges. --phone-depth is the half-thickness used by
+   every translateZ below so the box stays sealed from any angle. Bumped from
+   9px to 13px so the edge bevel is legible at the resting tilt, not only at
+   the orbit's rotation extremes. */
+.phone {
+  --phone-depth: 13px;
+}
+
+.phone-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 34px;
+  backface-visibility: hidden;
+}
+
+.phone-front {
+  border: 1px solid var(--line);
+  background: var(--bg-raise);
+  padding: 10px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+  transform: translateZ(var(--phone-depth));
+}
+
+.phone-back {
+  background: var(--bg-raise-2);
+  border: 1px solid var(--line);
+  transform: rotateY(180deg) translateZ(var(--phone-depth));
+}
+
+/* Thin edge strips: top/bottom rotate about X, left/right about Y, each
+   pushed out by half the case thickness so the six faces meet like a
+   sealed box rather than floating panels. Radius matches the curve of the
+   corner they wrap so no hard seams show as the phone turns. */
+.phone-edge {
+  border-radius: 0;
+  background: var(--bg-raise-2);
+  border: 1px solid var(--line);
+}
+.phone-edge-top,
+.phone-edge-bottom {
+  left: 6%;
+  right: 6%;
+  height: calc(var(--phone-depth) * 2);
+  border-radius: 34px 34px 0 0 / 16px 16px 0 0;
+}
+.phone-edge-top {
+  top: 0;
+  transform: rotateX(90deg) translateZ(calc(var(--phone-depth) * -1));
+  transform-origin: top center;
+}
+.phone-edge-bottom {
+  bottom: 0;
+  transform: rotateX(-90deg) translateZ(calc(var(--phone-depth) * -1));
+  transform-origin: bottom center;
+}
+.phone-edge-left,
+.phone-edge-right {
+  top: 6%;
+  bottom: 6%;
+  width: calc(var(--phone-depth) * 2);
+}
+.phone-edge-left {
+  left: 0;
+  transform: rotateY(-90deg) translateZ(calc(var(--phone-depth) * -1));
+  transform-origin: left center;
+}
+.phone-edge-right {
+  right: 0;
+  transform: rotateY(90deg) translateZ(calc(var(--phone-depth) * -1));
+  transform-origin: right center;
+}
+
+/* ---------- Phone: idle orbit + pointer spring ---------- */
+/* Ambient life when nobody is interacting: a slow, small orbit around the
+   resting tilt. Decorative marketing motion (not UI feedback), so the long
+   9s loop is intentional per the motion system's own exception for it. */
+@media (prefers-reduced-motion: no-preference) {
+  .phone {
+    animation: phone-orbit 9s var(--ease-in-out) infinite;
+  }
+}
+@media (hover: hover) and (pointer: fine) {
+  /* JS takes over rotation via rAF spring while the pointer is active; the
+     animation is paused (not removed) from app.js so resuming continues
+     from its current offset instead of restarting from 0%. */
+  .hero-demo.is-pointer-active .phone { animation-play-state: paused; }
+}
+
+@keyframes phone-orbit {
+  0%   { transform: rotateX(6deg)  rotateY(-15deg) translateZ(0px); }
+  25%  { transform: rotateX(3deg)  rotateY(-1deg)  translateZ(6px); }
+  50%  { transform: rotateX(-4deg) rotateY(6deg)   translateZ(0px); }
+  75%  { transform: rotateX(2deg)  rotateY(-9deg)  translateZ(6px); }
+  100% { transform: rotateX(6deg)  rotateY(-15deg) translateZ(0px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* No animation, no JS spring loop (app.js checks the same query): the
+     phone sits at one fixed, pleasant 3D tilt. */
+  .phone { transform: rotateX(6deg) rotateY(-15deg); }
+}
+
+/* The "photos in" fan: three crops of the seller's shot, clipped to the phone
+   like prints. Tells the input half of the story the phone finishes. Shares
+   .hero-demo's perspective/preserve-3d, so each print gets its own translateZ
+   (--z below) and the fan reads as three prints floating at real depth
+   toward the phone, not a flat stack of tilted rectangles. */
+.shots {
+  position: absolute;
+  top: -16px;
+  left: calc(50% - min(150px, 36vw) - 26px);
+  z-index: 2;
+  display: flex;
+  transform-style: preserve-3d;
+}
+
+.shot {
+  --rot: 0deg;
+  --z: 0px;
+  width: 58px;
+  height: 74px;
+  border-radius: 12px;
+  border: 3px solid var(--text);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+  background-image: url("assets/candle.jpg");
+  transform: translateZ(var(--z)) rotate(var(--rot));
+}
+.shot-a { --rot: -8deg; --z: 30px; background-size: 135%; background-position: 50% 28%; }
+.shot-b { --rot: 5deg; --z: -10px; background-size: 230%; background-position: 50% 82%; margin-left: -14px; margin-top: 14px; }
+.shot-c { --rot: -3deg; --z: 10px; background-size: 185%; background-position: 15% 55%; margin-left: -14px; margin-top: 4px; }
+
+.shots-label,
+.out-label {
+  display: none;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+/* Curved flow annotations: photos in (top left), finished ad out (bottom
+   right). Wide viewports only; drawn in after the hero settles. */
+.flow-arrow {
+  display: none;
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  color: rgba(200, 245, 66, 0.55);
+}
+.flow-arrow path {
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.flow-arrow path[pathLength] {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+.flow-arrow .arrow-head { opacity: 0; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .flow-arrow path[pathLength] { animation: draw-path 0.9s var(--ease-out) forwards; }
+  .flow-arrow .arrow-head { animation: fade-in 0.3s var(--ease-out) forwards; }
+  .arrow-in path[pathLength] { animation-delay: 1s; }
+  .arrow-in .arrow-head { animation-delay: 1.75s; }
+  .arrow-out path[pathLength] { animation-delay: 1.5s; }
+  .arrow-out .arrow-head { animation-delay: 2.25s; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flow-arrow path[pathLength] { stroke-dashoffset: 0; }
+  .flow-arrow .arrow-head { opacity: 1; }
+}
+@keyframes draw-path { to { stroke-dashoffset: 0; } }
+@keyframes fade-in { to { opacity: 1; } }
+
+/* Wide viewports: the fan moves outboard of the phone and the flow
+   annotations turn on. */
+@media (min-width: 1081px) {
+  .shots {
+    top: 2px;
+    left: calc(50% - 150px - 122px);
+    flex-direction: column;
+    align-items: center;
+    width: 88px;
+  }
+  .shot-b { margin: -18px 0 0 14px; }
+  .shot-c { margin: -18px 0 0 -10px; }
+  .shots-label { display: block; margin-top: 10px; transform: rotate(-3deg); }
+  .flow-arrow { display: block; }
+  .arrow-in { left: calc(50% - 150px - 74px); top: 268px; width: 80px; height: 98px; }
+  .arrow-out { right: calc(50% - 150px - 74px); top: 316px; width: 88px; height: 97px; }
+  .out-label {
+    display: block;
+    position: absolute;
+    right: calc(50% - 150px - 158px);
+    top: 424px;
+    transform: rotate(3deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .shot { animation: pop 0.55s var(--ease-out) backwards; }
+  .shot-a { animation-delay: 0.45s; }
+  .shot-b { animation-delay: 0.6s; }
+  .shot-c { animation-delay: 0.75s; }
+}
+@keyframes pop {
+  from { opacity: 0; transform: translateZ(var(--z)) rotate(var(--rot)) scale(0.4) translateY(12px); }
+}
+
+.phone-screen {
+  position: relative;
+  height: 100%;
+  border-radius: 26px;
+  overflow: hidden;
+  background: var(--bg-raise-2);
+}
+
+.story-bars {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  z-index: 3;
+  display: flex;
+  gap: 5px;
+}
+.story-bars .bar {
+  flex: 1;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(242, 243, 238, 0.25);
+  overflow: hidden;
+}
+.story-bars .bar::after {
+  content: "";
+  display: block;
+  height: 100%;
+  background: var(--text);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+.scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  opacity: 0;
+}
+.scene img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.scene-2 img { object-position: 50% 78%; transform-origin: 50% 80%; }
+
+.scene::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.62), transparent 55%);
+}
+.scene-3::after { content: none; }
+
+.caption {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  padding: 0 18px 26px;
+  font-size: 1.28rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  text-align: left;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.5);
+}
+
+.scene-3 {
+  background: var(--accent);
+  color: var(--accent-ink);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+.endcard-name {
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.endcard-cta {
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1.5px solid var(--accent-ink);
+  border-radius: 999px;
+  padding: 8px 16px;
+}
+
+.demo-note {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-top: 18px;
+}
+
+/* Scene + bar choreography: one 12s timeline, three windows. */
+@media (prefers-reduced-motion: no-preference) {
+  .scene-1 { animation: scene-a 12s linear infinite; }
+  .scene-2 { animation: scene-b 12s linear infinite; }
+  .scene-3 { animation: scene-c 12s linear infinite; }
+  .scene img { animation: kenburns 12s linear infinite; }
+  .bar-1::after { animation: fill-a 12s linear infinite; }
+  .bar-2::after { animation: fill-b 12s linear infinite; }
+  .bar-3::after { animation: fill-c 12s linear infinite; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scene-1 { opacity: 1; }
+  .bar-1::after { transform: scaleX(1); }
+}
+
+@keyframes scene-a {
+  0%, 30% { opacity: 1; }
+  36%, 94% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes scene-b {
+  0%, 30% { opacity: 0; }
+  36%, 63% { opacity: 1; }
+  69%, 100% { opacity: 0; }
+}
+@keyframes scene-c {
+  0%, 63% { opacity: 0; }
+  69%, 94% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes kenburns {
+  from { transform: scale(1.03); }
+  to { transform: scale(1.2); }
+}
+@keyframes fill-a {
+  0% { transform: scaleX(0); }
+  33.3%, 100% { transform: scaleX(1); }
+}
+@keyframes fill-b {
+  0%, 33.3% { transform: scaleX(0); }
+  66.6%, 100% { transform: scaleX(1); }
+}
+@keyframes fill-c {
+  0%, 66.6% { transform: scaleX(0); }
+  100% { transform: scaleX(1); }
+}
+
+/* ---------- Sections ---------- */
+
+section { padding-block: clamp(56px, 9vh, 110px); }
+section + section { border-top: 1px solid var(--line); }
+
+/* ---------- Seller marquee ---------- */
+
+.marquee-band { padding-block: 20px; background: rgba(200, 245, 66, 0.04); }
+
+.marquee { overflow: hidden; }
+.marquee-track {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  width: max-content;
+  padding-right: 28px;
+}
+.marquee-track span {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+.marquee-track i {
+  font-style: normal;
+  font-size: 0.7rem;
+  color: var(--accent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .marquee-track { animation: marquee 40s linear infinite; }
+  .marquee:hover .marquee-track { animation-play-state: paused; }
+}
+@keyframes marquee {
+  to { transform: translateX(-50%); }
+}
+
+/* Reveal system fails visible: sections hide only once JS adds `reveal-ready`
+   to <html> (skipped under reduced motion), and app.js force-reveals everything
+   after a failsafe timeout. No JS, no observer, no frames = fully visible page. */
+.reveal {
+  transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out);
+}
+html.reveal-ready .reveal:not(.in) {
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+/* Children of revealed sections stagger in behind the section itself.
+   One-shot animations (not delayed transitions) so hover transforms on the
+   same elements respond instantly afterwards. */
+html.reveal-ready .reveal:not(.in) .cell,
+html.reveal-ready .reveal:not(.in) .step { opacity: 0; }
+html.reveal-ready .reveal.in .cell,
+html.reveal-ready .reveal.in .step { animation: rise-in 0.6s var(--ease-out) backwards; }
+html.reveal-ready .reveal.in .cell:nth-child(2),
+html.reveal-ready .reveal.in .step:nth-child(2) { animation-delay: 0.08s; }
+html.reveal-ready .reveal.in .cell:nth-child(3),
+html.reveal-ready .reveal.in .step:nth-child(3) { animation-delay: 0.16s; }
+html.reveal-ready .reveal.in .cell:nth-child(4) { animation-delay: 0.24s; }
+html.reveal-ready .reveal.in .cell:nth-child(5) { animation-delay: 0.32s; }
+
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(16px); }
+}
+
+/* ---------- Steps ---------- */
+
+.step-list {
+  list-style: none;
+  margin-top: 48px;
+  display: grid;
+  gap: 36px;
+  max-width: 720px;
+}
+
+.step {
+  display: flex;
+  gap: 24px;
+  align-items: baseline;
+}
+.step-offset { margin-left: clamp(0px, 6vw, 72px); }
+.step-offset-2 { margin-left: clamp(0px, 12vw, 144px); }
+
+.step-num {
+  font-size: clamp(2.4rem, 4vw, 3.2rem);
+  font-weight: 800;
+  line-height: 1;
+  color: var(--accent);
+  letter-spacing: -0.03em;
+  flex-shrink: 0;
+  width: 56px;
+}
+
+.step p { color: var(--text-dim); margin-top: 6px; max-width: 52ch; }
+
+/* ---------- Bento ---------- */
+
+.bento {
+  margin-top: 48px;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 14px;
+}
+
+.cell {
+  grid-column: span 2;
+  background: var(--bg-raise);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  padding: 28px;
+  transition: transform 0.35s var(--ease-out), border-color 0.35s var(--ease-out);
+}
+.cell:nth-child(1), .cell:nth-child(2) { grid-column: span 3; }
+
+@media (hover: hover) {
+  .cell:hover { transform: translateY(-4px); border-color: rgba(242, 243, 238, 0.2); }
+  .cell-tint:hover { border-color: rgba(200, 245, 66, 0.45); }
+}
+
+.cell p { color: var(--text-dim); margin-top: 10px; font-size: 0.98rem; }
+
+.cell-tint {
+  background: var(--accent-dim);
+  border-color: rgba(200, 245, 66, 0.25);
+}
+.cell-tint h3 { color: var(--accent); }
+
+/* Example hook lines cycling on the demo-ad rhythm (same 12s windows). */
+.hook-chip { position: relative; min-height: 46px; margin-top: 22px; }
+.hook {
+  position: absolute;
+  top: 0;
+  left: 0;
+  max-width: 100%;
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 16px;
+  background: rgba(12, 13, 15, 0.55);
+  border: 1px solid rgba(200, 245, 66, 0.25);
+  border-radius: 12px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  opacity: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hook-1 { animation: scene-a 12s linear infinite; }
+  .hook-2 { animation: scene-b 12s linear infinite; }
+  .hook-3 { animation: scene-c 12s linear infinite; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hook-1 { opacity: 1; }
+}
+
+/* Aspect-ratio chips: the actual crops the ad ships in. */
+.ratio-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  margin-top: 22px;
+}
+.ratio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid rgba(242, 243, 238, 0.28);
+  border-radius: 6px;
+  color: var(--text-dim);
+}
+.ratio b { font-size: 0.68rem; font-weight: 600; }
+.ratio-tall { width: 34px; height: 60px; border-color: var(--accent); color: var(--accent); }
+.ratio-square { width: 46px; height: 46px; }
+.ratio-wide { width: 74px; height: 42px; }
+
+.cell-photo { padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+.cell-photo img { width: 100%; flex: 1; object-fit: cover; min-height: 150px; }
+.cell-photo p { padding: 18px 22px 22px; margin: 0; }
+
+/* ---------- Ledger ---------- */
+
+.ledger-rows {
+  list-style: none;
+  margin-top: 48px;
+  max-width: 780px;
+}
+
+.ledger-rows li {
+  display: grid;
+  grid-template-columns: 180px 1fr auto;
+  gap: 24px;
+  align-items: baseline;
+  padding-block: 24px;
+}
+.ledger-rows li + li { border-top: 1px solid var(--line); }
+
+.ledger-rows p { color: var(--text-dim); font-size: 0.98rem; }
+.ledger-rows .price {
+  font-weight: 600;
+  font-size: 1.05rem;
+  white-space: nowrap;
+}
+
+/* The tinted card extends outward via negative margins so its interior
+   columns stay aligned with the plain rows above it (23px = 24px - 1px border). */
+.ledger-rows .ledger-hero {
+  background: var(--accent-dim);
+  border: 1px solid rgba(200, 245, 66, 0.25);
+  border-radius: var(--radius-card);
+  margin-top: 12px;
+  margin-inline: -24px;
+  padding-inline: 23px;
+}
+.ledger-hero h3, .ledger-hero .price { color: var(--accent); }
+
+/* ---------- FAQ ---------- */
+
+.faq-list { margin-top: 48px; max-width: 720px; }
+
+.faq-list details + details { border-top: 1px solid var(--line); }
+
+.faq-list summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding-block: 22px;
+  font-weight: 600;
+  font-size: 1.08rem;
+  cursor: pointer;
+  list-style: none;
+}
+.faq-list summary::-webkit-details-marker { display: none; }
+.faq-list summary:hover .faq-marker { color: var(--accent); }
+.faq-list summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.faq-marker {
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: var(--text-dim);
+  transition: transform 0.3s var(--ease-out);
+  flex-shrink: 0;
+}
+details[open] .faq-marker { transform: rotate(45deg); color: var(--accent); }
+
+.faq-list details > p {
+  color: var(--text-dim);
+  padding-bottom: 22px;
+  max-width: 58ch;
+}
+
+/* ---------- Closer ---------- */
+
+/* The page's one deliberate color-block moment: the end-card of the sample ad,
+   blown up to full bleed. Dark page, lime finish. */
+.closer {
+  text-align: center;
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-top: 0;
+  padding-inline: clamp(20px, 4vw, 48px);
+  padding-block: clamp(72px, 12vh, 140px);
+}
+.closer h2 {
+  margin-inline: auto;
+  max-width: none;
+  font-size: clamp(2.4rem, 5vw, 3.6rem);
+}
+.closer p {
+  color: rgba(19, 21, 3, 0.72);
+  max-width: 46ch;
+  margin: 16px auto 32px;
+}
+
+.btn-ink { background: var(--accent-ink); color: var(--accent); }
+.btn-ink:hover { filter: brightness(1.35); }
+.btn-ink:focus-visible { outline-color: var(--accent-ink); }
+
+/* Same form component, inverted for the lime block. */
+.closer-form {
+  max-width: 480px;
+  margin: 0 auto;
+  text-align: left;
+}
+.closer-form label,
+.closer-form .form-helper { color: rgba(19, 21, 3, 0.72); }
+.closer-form input[type="email"] {
+  background: rgba(19, 21, 3, 0.92);
+  border-color: transparent;
+  color: var(--accent);
+}
+.closer-form input[type="email"]::placeholder { color: rgba(200, 245, 66, 0.55); }
+.closer-form input[type="email"]:focus-visible { outline-color: var(--accent-ink); }
+.closer-form .form-error { color: #7c2400; font-weight: 600; }
+.closer-form .form-success h3 { color: var(--accent-ink); }
+.closer-form .form-success p { color: rgba(19, 21, 3, 0.72); }
+
+/* ---------- Footer ---------- */
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 32px;
+  border-top: 1px solid var(--line);
+}
+.footer .wordmark { font-size: 1.1rem; }
+.footer-meta { color: var(--text-dim); font-size: 0.88rem; }
+
+/* ---------- Mobile ---------- */
+
+@media (max-width: 860px) {
+  .hero {
+    grid-template-columns: 1fr;
+    padding-top: 8px;
+  }
+  /* Pitch before ask: headline, sub, demo, then the form. */
+  .hero-copy { display: contents; }
+  .hero-copy h1 { order: 1; }
+  .hero-copy .sub { order: 2; }
+  .hero-demo { order: 3; justify-self: center; margin-top: 28px; }
+  .hero-copy .waitlist-form { order: 4; }
+  .shots { top: -12px; left: calc(50% - min(150px, 36vw) - 10px); }
+  .shot { width: 46px; height: 60px; border-width: 2px; }
+  .step-offset, .step-offset-2 { margin-left: 0; }
+  .cell, .cell:nth-child(1), .cell:nth-child(2) { grid-column: 1 / -1; }
+  .field-row { flex-direction: column; }
+  .field-row .btn { width: 100%; }
+  .ledger-rows li { grid-template-columns: 1fr; gap: 6px; }
+  .ledger-rows .ledger-hero { margin-inline: -16px; padding-inline: 15px; }
+}
