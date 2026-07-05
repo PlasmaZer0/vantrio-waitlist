@@ -208,7 +208,21 @@ if (phone && demo && finePointer && !reduceMotion) {
 // so no environment (reduced motion, hidden tab, preview bot) sees a blank page.
 const reveals = document.querySelectorAll(".reveal");
 
-if (!reduceMotion && "IntersectionObserver" in window) {
+// Progressive enhancement: on desktop-supporting browsers the CSS scroll-driven
+// `view()` timeline owns the reveals (see the @supports block in styles.css). We
+// feature-detect the exact same gate so only ONE reveal system runs — skipping
+// the observer here means the JS never adds `reveal-ready`/`.in` to fight the
+// CSS scrub. When the CSS path is inactive (mobile <=860px, no view() support,
+// or reduced motion) this stays false and the observer below runs as before,
+// preserving the fail-visible machinery for every fallback branch.
+const cssScrollReveals =
+  !reduceMotion &&
+  typeof CSS !== "undefined" &&
+  typeof CSS.supports === "function" &&
+  CSS.supports("animation-timeline: view()") &&
+  window.matchMedia("(min-width: 861px)").matches;
+
+if (!reduceMotion && !cssScrollReveals && "IntersectionObserver" in window) {
   // Arm only once a real rendering frame is proven. Frame-starved contexts
   // (preview bots, hidden tabs) never fire rAF, so they get the visible page.
   requestAnimationFrame(() => {
